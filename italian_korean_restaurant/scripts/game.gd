@@ -239,7 +239,10 @@ func _add_move_control(label_text: String, pos: Vector2, button_size: Vector2, d
 	button.modulate = Color(1,1,1,0.82)
 	hud.add_child(button)
 	button.button_down.connect(func(): move_vector = dir)
-	button.button_up.connect(func(): if move_vector == dir: move_vector = Vector2.ZERO)
+	button.button_up.connect(func():
+		if move_vector == dir:
+			move_vector = Vector2.ZERO
+	)
 	move_buttons[label_text] = button
 
 func _new_order() -> void:
