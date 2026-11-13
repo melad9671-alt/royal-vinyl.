@@ -13,29 +13,11 @@ permissions:
 jobs:
   export-android:
     runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.4.1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android packages
-        run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Set up Godot 4
-        uses: chickensoft/setup-godot@v2
-        with:
-          version: 4.4.1
-          use-dotnet: false
-          include-templates: true
 
       - name: Validate project
         run: godot --headless --path italian_korean_restaurant --editor --quit
