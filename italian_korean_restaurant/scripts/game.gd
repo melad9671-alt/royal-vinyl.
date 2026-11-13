@@ -41,6 +41,7 @@ func _process(delta: float) -> void:
 			order_state = "ready"
 			status_label.text = "ORDER READY  •  Take it to the customer"
 			action_button.text = "SERVE ORDER"
+			action_button.disabled = false
 			progress.value = 100.0
 
 func _physics_process(_delta: float) -> void:
@@ -258,6 +259,10 @@ func _new_order() -> void:
 func _on_action_pressed() -> void:
 	match order_state:
 		"waiting":
+			order_state = "ordered"
+			status_label.text = "Order accepted. Go to: " + str(active_recipe.station)
+			action_button.text = "START PREPARATION"
+		"ordered":
 			order_state = "preparing"
 			prep_time = 0.0
 			prep_duration = float(active_recipe.time)
@@ -280,6 +285,7 @@ func _on_action_pressed() -> void:
 
 func _rebuild_customer_queue() -> void:
 	customer_index = 0
+	customer_nodes.clear()
 	_build_customers()
 
 func _box(object_name: String, pos: Vector3, dimensions: Vector3, color: Color) -> MeshInstance3D:
