@@ -1,6 +1,7 @@
 package com.melad.offlinemusic
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -89,7 +91,7 @@ private fun OfflineMusicApp() {
     var isPlaying by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(LibraryTab.SONGS) }
-    var permissionGranted by remember { mutableStateOf(hasAudioPermission()) }
+    var permissionGranted by remember { mutableStateOf(hasAudioPermission(context)) }
     var favorites by remember {
         mutableStateOf(
             context.getSharedPreferences("offline_music", 0)
@@ -314,7 +316,7 @@ private fun SearchField(value: String, onSearchChange: (String) -> Unit) {
 }
 
 @Composable
-private fun TrackList(
+private fun ColumnScope.TrackList(
     tracks: List<Track>,
     currentTrack: Track?,
     favorites: Set<String>,
@@ -478,11 +480,8 @@ private fun audioPermission(): String =
     if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_AUDIO
     else Manifest.permission.READ_EXTERNAL_STORAGE
 
-@Composable
-private fun hasAudioPermission(): Boolean {
-    val context = LocalContext.current
-    return ContextCompat.checkSelfPermission(context, audioPermission()) == PackageManager.PERMISSION_GRANTED
-}
+private fun hasAudioPermission(context: Context): Boolean =
+    ContextCompat.checkSelfPermission(context, audioPermission()) == PackageManager.PERMISSION_GRANTED
 
 private fun formatTime(milliseconds: Float): String {
     val seconds = (milliseconds.toLong() / 1000).coerceAtLeast(0)
