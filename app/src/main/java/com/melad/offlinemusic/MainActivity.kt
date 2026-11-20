@@ -45,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,6 +88,7 @@ private fun OfflineMusicApp() {
     val context = LocalContext.current
     val player = remember { ExoPlayer.Builder(context).build() }
     var library by remember { mutableStateOf(emptyList<Track>()) }
+    val latestLibrary by rememberUpdatedState(library)
     var currentTrack by remember { mutableStateOf<Track?>(null) }
     var isPlaying by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
@@ -127,8 +129,7 @@ private fun OfflineMusicApp() {
             }
 
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                val index = player.currentMediaItemIndex
-                currentTrack = library.getOrNull(index)
+                currentTrack = latestLibrary.firstOrNull { it.id.toString() == mediaItem?.mediaId }
             }
 
             override fun onPlaybackStateChanged(playbackState: Int) {
@@ -154,7 +155,10 @@ private fun OfflineMusicApp() {
         val index = library.indexOfFirst { it.id == track.id }
         if (index < 0) return
         currentTrack = track
-        player.setMediaItems(library.map { MediaItem.fromUri(it.uri) }, index, 0L)
+        val queue = library.map { track ->
+            MediaItem.Builder().setMediaId(track.id.toString()).setUri(track.uri).build()
+        }
+        player.setMediaItems(queue, index, 0L)
         player.prepare()
         player.play()
     }
